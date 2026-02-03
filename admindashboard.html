@@ -31,35 +31,54 @@
           display:flex;justify-content:space-between;align-items:center;
           background:rgba(5,8,15,.75);backdrop-filter:blur(12px)
         }
-        .brand{font-weight:900;letter-spacing:1px}
+        .brand{font-weight:900}
         .right{display:flex;gap:10px;align-items:center}
         .pill{padding:8px 12px;border-radius:999px;border:1px solid var(--border);color:var(--muted);font-size:.8rem}
         .logout{padding:10px 14px;border-radius:14px;border:none;cursor:pointer;font-weight:800;
-          background:linear-gradient(135deg,var(--accent),var(--accent2));color:#041017}
+        background:linear-gradient(135deg,var(--accent),var(--accent2));color:#041017}
         main{padding:56px 8%}
-        h1{font-size:2.2rem;margin-bottom:6px}
-        .sub{color:var(--muted);margin-bottom:28px}
         .tabs{display:flex;gap:12px;margin-bottom:18px}
         .tab{padding:12px 20px;border-radius:14px;border:1px solid var(--border);cursor:pointer;color:var(--muted);font-weight:600}
         .tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#041017;border-color:transparent}
         .panel{background:linear-gradient(180deg,#0b1220,#05080f);border:1px solid var(--border);border-radius:22px;padding:26px}
         table{width:100%;border-collapse:collapse}
-        th,td{padding:14px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:.95rem}
-        th{color:var(--muted);font-weight:600}
-        .status{padding:6px 12px;border-radius:999px;font-size:.75rem;font-weight:800;text-transform:capitalize}
-        .pending{background:#1b2440;color:#c7d2fe}
-        .approved{background:#0f3d2e;color:#4df2d6}
-        .rejected{background:#3d1f1f;color:#ff9a9a}
+        th,td{padding:14px 10px;border-bottom:1px solid var(--border);font-size:.95rem}
+        th{color:var(--muted)}
         .actions{display:flex;gap:8px}
-        .btn{padding:8px 14px;border-radius:12px;border:none;cursor:pointer;font-weight:800}
-        .approve{background:var(--accent);color:#041017}
-        .reject{background:var(--danger);color:#041017}
+        .btn{padding:8px 14px;border-radius:12px;border:none;font-weight:800;cursor:pointer}
+        .approve{background:var(--accent)}
+        .reject{background:var(--danger)}
+        .view{background:#1b2440;color:#c7d2fe}
+        .delete{background:#3d1f1f;color:#ff9a9a}
+        .status{padding:6px 12px;border-radius:999px;font-size:.75rem;font-weight:800}
+        .pending{background:#1b2440}
+        .approved{background:#0f3d2e}
+        .rejected{background:#3d1f1f}
+        .empty{text-align:center;color:var(--muted)}
+
         .admin-panel{margin-top:40px}
-        .admin-panel input{padding:12px 14px;border-radius:14px;border:1px solid var(--border);background:#05080f;color:var(--text)}
-        .admin-panel button{margin-left:10px}
-        .empty{text-align:center;color:var(--muted);padding:20px}
+        .admin-panel input{padding:12px;border-radius:14px;border:1px solid var(--border);background:#05080f;color:var(--text)}
+
+        .modal{
+          position:fixed;inset:0;
+          background:rgba(0,0,0,.6);
+          display:none;align-items:center;justify-content:center;
+        }
+        .modal-content{
+          background:var(--panel);
+          padding:30px;
+          border-radius:18px;
+          max-width:600px;
+          width:90%;
+          max-height:80vh;
+          overflow:auto;
+        }
+        .modal-content h2{margin-bottom:14px}
+        .modal-content p{margin-bottom:8px;color:var(--muted)}
+        .close{margin-top:20px}
     </style>
 </head>
+
 <body>
 
 <header>
@@ -71,9 +90,6 @@
 </header>
 
 <main>
-    <h1>Applications</h1>
-    <p class="sub">Approve or reject applications in real time</p>
-
     <div class="tabs">
         <div class="tab active" data-type="actors">Actors</div>
         <div class="tab" data-type="builders">Builders</div>
@@ -83,97 +99,135 @@
     <div class="panel">
         <table>
             <thead>
-            <tr><th>Name</th><th>Role</th><th>Status</th><th>Actions</th></tr>
+            <tr>
+                <th>Discord Name</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
             </thead>
-            <tbody id="appTable"><tr><td colspan="4" class="empty">Loading…</td></tr></tbody>
+            <tbody id="appTable">
+            <tr><td colspan="4" class="empty">Loading…</td></tr>
+            </tbody>
         </table>
     </div>
 
     <div class="panel admin-panel">
-        <h2>Admin Access</h2>
-        <p class="sub">Add another admin by email</p>
-        <input type="email" id="newAdminEmail" placeholder="admin@email.com" />
-        <button class="btn approve" id="addAdminBtn">Add Admin</button>
+        <h3>Add Admin</h3>
+        <input type="email" id="newAdminEmail" placeholder="admin@email.com">
+        <button class="btn approve" id="addAdminBtn">Add</button>
     </div>
 </main>
 
+<!-- MODAL -->
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <h2>Application Details</h2>
+        <div id="modalBody"></div>
+        <button class="btn approve close" onclick="closeModal()">Close</button>
+    </div>
+</div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, updateDoc, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+    import { getAuth,onAuthStateChanged,signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+    import { getFirestore,collection,onSnapshot,doc,updateDoc,deleteDoc,getDoc,setDoc,serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyBDUKl5Pn4_in6kvgvuLKP5S6Pm2fDDKz8",
-      authDomain: "sunkensmp.firebaseapp.com",
-      projectId: "sunkensmp",
-      storageBucket: "sunkensmp.firebasestorage.app",
-      messagingSenderId: "413559234072",
-      appId: "1:413559234072:web:eb190773961bbe12472d6d"
+     apiKey:"AIzaSyBDUKl5Pn4_in6kvgvuLKP5S6Pm2fDDKz8",
+     authDomain:"sunkensmp.firebaseapp.com",
+     projectId:"sunkensmp"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const SUPER_ADMIN = "e85972080@gmail.com";
-    let currentType = "actors";
-    let unsubscribe;
+    const SUPER_ADMIN="e85972080@gmail.com";
+    let currentType="actors", unsubscribe;
 
-    const adminEmail = document.getElementById('adminEmail');
-    const appTable = document.getElementById('appTable');
+    const table=document.getElementById("appTable");
+    const modal=document.getElementById("modal");
+    const modalBody=document.getElementById("modalBody");
 
-    onAuthStateChanged(auth, async user => {
-      if (!user) return location.href = 'loginregister.html';
-      adminEmail.textContent = user.email;
+    onAuthStateChanged(auth, async user=>{
+     if(!user) return location.href="loginregister.html";
+     document.getElementById("adminEmail").textContent=user.email;
 
-      const adminRef = doc(db,'admins',user.email);
-      const snap = await getDoc(adminRef);
-      if (!snap.exists() && user.email !== SUPER_ADMIN){
-        await signOut(auth);
-        return location.href = 'loginregister.html';
-      }
-      loadApps();
+     const adminSnap=await getDoc(doc(db,"admins",user.email));
+     if(!adminSnap.exists() && user.email!==SUPER_ADMIN){
+       await signOut(auth);
+       location.href="loginregister.html";
+     }
+     loadApps();
     });
 
-    document.querySelectorAll('.tab').forEach(t=>{
-      t.onclick=()=>{
-        document.querySelector('.tab.active').classList.remove('active');
-        t.classList.add('active');
-        currentType=t.dataset.type;
-        loadApps();
-      }
+    document.querySelectorAll(".tab").forEach(tab=>{
+     tab.onclick=()=>{
+       document.querySelector(".tab.active").classList.remove("active");
+       tab.classList.add("active");
+       currentType=tab.dataset.type;
+       loadApps();
+     };
     });
 
     function loadApps(){
-      if (unsubscribe) unsubscribe();
-      appTable.innerHTML='<tr><td colspan="4" class="empty">Loading…</td></tr>';
-      unsubscribe = onSnapshot(collection(db,'applications',currentType,'submissions'),snap=>{
-        appTable.innerHTML='';
-        if (snap.empty){appTable.innerHTML='<tr><td colspan="4" class="empty">No applications</td></tr>';return;}
-        snap.forEach(d=>{
-          const data=d.data();
-          const status=data.status||'pending';
-          const row=document.createElement('tr');
-          row.innerHTML=`<td>${data.name||'-'}</td><td>${data.role||'-'}</td><td><span class="status ${status}">${status}</span></td><td class="actions"><button class="btn approve">Approve</button><button class="btn reject">Reject</button></td>`;
-          row.querySelector('.approve').onclick=()=>updateDoc(doc(db,'applications',currentType,'submissions',d.id),{status:'approved'});
-          row.querySelector('.reject').onclick=()=>updateDoc(doc(db,'applications',currentType,'submissions',d.id),{status:'rejected'});
-          appTable.appendChild(row);
-        })
-      })
+     if(unsubscribe) unsubscribe();
+     table.innerHTML='<tr><td colspan="4" class="empty">Loading…</td></tr>';
+
+     unsubscribe=onSnapshot(collection(db,"applications",currentType,"submissions"),snap=>{
+      table.innerHTML="";
+      if(snap.empty){
+        table.innerHTML='<tr><td colspan="4" class="empty">No applications</td></tr>';
+        return;
+      }
+      snap.forEach(docSnap=>{
+        const d=docSnap.data();
+        const tr=document.createElement("tr");
+        tr.innerHTML=`
+          <td>${d.name||"-"}</td>
+          <td>${d.role||"-"}</td>
+          <td><span class="status ${d.status||"pending"}">${d.status||"pending"}</span></td>
+          <td class="actions">
+            <button class="btn view">See More</button>
+            <button class="btn approve">Approve</button>
+            <button class="btn reject">Reject</button>
+            <button class="btn delete">Delete</button>
+          </td>`;
+
+        tr.querySelector(".view").onclick=()=>openModal(d);
+        tr.querySelector(".approve").onclick=()=>updateDoc(doc(db,"applications",currentType,"submissions",docSnap.id),{status:"approved"});
+        tr.querySelector(".reject").onclick=()=>updateDoc(doc(db,"applications",currentType,"submissions",docSnap.id),{status:"rejected"});
+        tr.querySelector(".delete").onclick=async()=>{
+          if(confirm("Delete this application?")){
+            await deleteDoc(doc(db,"applications",currentType,"submissions",docSnap.id));
+          }
+        };
+        table.appendChild(tr);
+      });
+     });
     }
 
-    document.getElementById('addAdminBtn').onclick=async()=>{
-      const email=document.getElementById('newAdminEmail').value.trim();
-      if(!email)return alert('Enter an email');
-      await setDoc(doc(db,'admins',email),{email,addedAt:serverTimestamp()});
-      document.getElementById('newAdminEmail').value='';
-      alert('Admin added');
+    function openModal(data){
+     modalBody.innerHTML="";
+     Object.entries(data).forEach(([k,v])=>{
+       modalBody.innerHTML+=`<p><strong>${k}:</strong> ${v}</p>`;
+     });
+     modal.style.display="flex";
     }
+    window.closeModal=()=>modal.style.display="none";
 
-    document.getElementById('logoutBtn').onclick=async()=>{
-      await signOut(auth);
-      location.href='loginregister.html';
-    }
+    document.getElementById("logoutBtn").onclick=async()=>{
+     await signOut(auth);
+     location.href="loginregister.html";
+    };
+
+    document.getElementById("addAdminBtn").onclick=async()=>{
+     const email=document.getElementById("newAdminEmail").value.trim();
+     if(!email) return;
+     await setDoc(doc(db,"admins",email),{email,addedAt:serverTimestamp()});
+     alert("Admin added");
+    };
 </script>
 
 </body>
