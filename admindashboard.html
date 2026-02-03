@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard | Sunken Universe</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root{
+          --bg:#05080f;
+          --panel:#0b1220;
+          --accent:#4df2d6;
+          --accent2:#5b8cff;
+          --text:#e6ebf2;
+          --muted:#9aa4b2;
+          --danger:#ff6b6b;
+          --border:#162040;
+        }
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{
+          font-family:Inter,sans-serif;
+          background:radial-gradient(1200px 600px at 20% 10%,#0b1530,var(--bg));
+          color:var(--text);
+          min-height:100vh;
+        }
+        header{
+          padding:20px 8%;
+          border-bottom:1px solid #121a2f;
+          display:flex;justify-content:space-between;align-items:center;
+          background:rgba(5,8,15,.75);backdrop-filter:blur(12px)
+        }
+        .brand{font-weight:900;letter-spacing:1px}
+        .right{display:flex;gap:10px;align-items:center}
+        .pill{padding:8px 12px;border-radius:999px;border:1px solid var(--border);color:var(--muted);font-size:.8rem}
+        .logout{padding:10px 14px;border-radius:14px;border:none;cursor:pointer;font-weight:800;
+          background:linear-gradient(135deg,var(--accent),var(--accent2));color:#041017}
+        main{padding:56px 8%}
+        h1{font-size:2.2rem;margin-bottom:6px}
+        .sub{color:var(--muted);margin-bottom:28px}
+        .tabs{display:flex;gap:12px;margin-bottom:18px}
+        .tab{padding:12px 20px;border-radius:14px;border:1px solid var(--border);cursor:pointer;color:var(--muted);font-weight:600}
+        .tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#041017;border-color:transparent}
+        .panel{background:linear-gradient(180deg,#0b1220,#05080f);border:1px solid var(--border);border-radius:22px;padding:26px}
+        table{width:100%;border-collapse:collapse}
+        th,td{padding:14px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:.95rem}
+        th{color:var(--muted);font-weight:600}
+        .status{padding:6px 12px;border-radius:999px;font-size:.75rem;font-weight:800;text-transform:capitalize}
+        .pending{background:#1b2440;color:#c7d2fe}
+        .approved{background:#0f3d2e;color:#4df2d6}
+        .rejected{background:#3d1f1f;color:#ff9a9a}
+        .actions{display:flex;gap:8px}
+        .btn{padding:8px 14px;border-radius:12px;border:none;cursor:pointer;font-weight:800}
+        .approve{background:var(--accent);color:#041017}
+        .reject{background:var(--danger);color:#041017}
+        .admin-panel{margin-top:40px}
+        .admin-panel input{padding:12px 14px;border-radius:14px;border:1px solid var(--border);background:#05080f;color:var(--text)}
+        .admin-panel button{margin-left:10px}
+        .empty{text-align:center;color:var(--muted);padding:20px}
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="brand">Sunken Universe — Admin Dashboard</div>
+    <div class="right">
+        <span class="pill" id="adminEmail">Loading…</span>
+        <button class="logout" id="logoutBtn">Logout</button>
+    </div>
+</header>
+
+<main>
+    <h1>Applications</h1>
+    <p class="sub">Approve or reject applications in real time</p>
+
+    <div class="tabs">
+        <div class="tab active" data-type="actors">Actors</div>
+        <div class="tab" data-type="builders">Builders</div>
+        <div class="tab" data-type="staff">Staff</div>
+    </div>
+
+    <div class="panel">
+        <table>
+            <thead>
+            <tr><th>Name</th><th>Role</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="appTable"><tr><td colspan="4" class="empty">Loading…</td></tr></tbody>
+        </table>
+    </div>
+
+    <div class="panel admin-panel">
+        <h2>Admin Access</h2>
+        <p class="sub">Add another admin by email</p>
+        <input type="email" id="newAdminEmail" placeholder="admin@email.com" />
+        <button class="btn approve" id="addAdminBtn">Add Admin</button>
+    </div>
+</main>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+    import { getFirestore, collection, onSnapshot, updateDoc, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBDUKl5Pn4_in6kvgvuLKP5S6Pm2fDDKz8",
+      authDomain: "sunkensmp.firebaseapp.com",
+      projectId: "sunkensmp",
+      storageBucket: "sunkensmp.firebasestorage.app",
+      messagingSenderId: "413559234072",
+      appId: "1:413559234072:web:eb190773961bbe12472d6d"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const SUPER_ADMIN = "e85972080@gmail.com";
+    let currentType = "actors";
+    let unsubscribe;
+
+    const adminEmail = document.getElementById('adminEmail');
+    const appTable = document.getElementById('appTable');
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) return location.href = 'loginregister.html';
+      adminEmail.textContent = user.email;
+
+      const adminRef = doc(db,'admins',user.email);
+      const snap = await getDoc(adminRef);
+      if (!snap.exists() && user.email !== SUPER_ADMIN){
+        await signOut(auth);
+        return location.href = 'loginregister.html';
+      }
+      loadApps();
+    });
+
+    document.querySelectorAll('.tab').forEach(t=>{
+      t.onclick=()=>{
+        document.querySelector('.tab.active').classList.remove('active');
+        t.classList.add('active');
+        currentType=t.dataset.type;
+        loadApps();
+      }
+    });
+
+    function loadApps(){
+      if (unsubscribe) unsubscribe();
+      appTable.innerHTML='<tr><td colspan="4" class="empty">Loading…</td></tr>';
+      unsubscribe = onSnapshot(collection(db,'applications',currentType,'submissions'),snap=>{
+        appTable.innerHTML='';
+        if (snap.empty){appTable.innerHTML='<tr><td colspan="4" class="empty">No applications</td></tr>';return;}
+        snap.forEach(d=>{
+          const data=d.data();
+          const status=data.status||'pending';
+          const row=document.createElement('tr');
+          row.innerHTML=`<td>${data.name||'-'}</td><td>${data.role||'-'}</td><td><span class="status ${status}">${status}</span></td><td class="actions"><button class="btn approve">Approve</button><button class="btn reject">Reject</button></td>`;
+          row.querySelector('.approve').onclick=()=>updateDoc(doc(db,'applications',currentType,'submissions',d.id),{status:'approved'});
+          row.querySelector('.reject').onclick=()=>updateDoc(doc(db,'applications',currentType,'submissions',d.id),{status:'rejected'});
+          appTable.appendChild(row);
+        })
+      })
+    }
+
+    document.getElementById('addAdminBtn').onclick=async()=>{
+      const email=document.getElementById('newAdminEmail').value.trim();
+      if(!email)return alert('Enter an email');
+      await setDoc(doc(db,'admins',email),{email,addedAt:serverTimestamp()});
+      document.getElementById('newAdminEmail').value='';
+      alert('Admin added');
+    }
+
+    document.getElementById('logoutBtn').onclick=async()=>{
+      await signOut(auth);
+      location.href='loginregister.html';
+    }
+</script>
+
+</body>
+</html>

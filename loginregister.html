@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | Sunken Universe</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root{
+          --bg:#05080f;
+          --panel:#0b1220;
+          --accent:#4df2d6;
+          --accent2:#5b8cff;
+          --text:#e6ebf2;
+          --muted:#9aa4b2;
+          --border:#162040;
+        }
+        *{box-sizing:border-box}
+        body{
+          margin:0;
+          font-family:Inter,sans-serif;
+          background:radial-gradient(1200px 600px at 20% 10%,#0b1530,var(--bg));
+          color:var(--text);
+          min-height:100vh;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+        }
+
+        .card{
+          width:100%;
+          max-width:420px;
+          background:linear-gradient(180deg,#0b1220,#05080f);
+          border:1px solid var(--border);
+          border-radius:22px;
+          padding:32px;
+        }
+
+        h1{
+          font-size:1.8rem;
+          margin-bottom:6px;
+        }
+        .sub{
+          color:var(--muted);
+          margin-bottom:24px;
+        }
+
+        input{
+          width:100%;
+          padding:14px 16px;
+          margin-bottom:14px;
+          border-radius:14px;
+          border:1px solid var(--border);
+          background:#05080f;
+          color:var(--text);
+          font-size:.95rem;
+        }
+
+        button{
+          width:100%;
+          padding:14px;
+          border-radius:14px;
+          border:none;
+          font-weight:900;
+          cursor:pointer;
+          background:linear-gradient(135deg,var(--accent),var(--accent2));
+          color:#041017;
+          margin-top:8px;
+        }
+
+        .link{
+          text-align:center;
+          margin-top:14px;
+          font-size:.85rem;
+          color:var(--muted);
+          cursor:pointer;
+        }
+        .link:hover{text-decoration:underline}
+
+        .error{
+          color:#ff9a9a;
+          font-size:.85rem;
+          margin-top:10px;
+          text-align:center;
+        }
+        .success{
+          color:var(--accent);
+          font-size:.85rem;
+          margin-top:10px;
+          text-align:center;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+    <h1 id="title">Admin Login</h1>
+    <p class="sub" id="subtitle">Sign in to manage Sunken Universe</p>
+
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+
+    <button id="submitBtn">Login</button>
+
+    <div class="link" id="toggleMode">Create an account</div>
+    <div class="link" id="forgotPassword">Forgot password?</div>
+
+    <div class="error" id="error"></div>
+    <div class="success" id="success"></div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      sendPasswordResetEmail,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBDUKl5Pn4_in6kvgvuLKP5S6Pm2fDDKz8",
+      authDomain: "sunkensmp.firebaseapp.com",
+      projectId: "sunkensmp",
+      storageBucket: "sunkensmp.firebasestorage.app",
+      messagingSenderId: "413559234072",
+      appId: "1:413559234072:web:eb190773961bbe12472d6d"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    /* DOM */
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const submitBtn = document.getElementById('submitBtn');
+    const toggleMode = document.getElementById('toggleMode');
+    const forgotPassword = document.getElementById('forgotPassword');
+    const errorEl = document.getElementById('error');
+    const successEl = document.getElementById('success');
+    const title = document.getElementById('title');
+    const subtitle = document.getElementById('subtitle');
+
+    let isRegister = false;
+
+    /* AUTO REDIRECT */
+    onAuthStateChanged(auth,user=>{
+      if(user){
+        location.href = "admindashboard.html";
+      }
+    });
+
+    /* LOGIN / REGISTER */
+    submitBtn.onclick = async () => {
+      errorEl.textContent = "";
+      successEl.textContent = "";
+
+      if(!email.value || !password.value){
+        errorEl.textContent = "Please fill out all fields";
+        return;
+      }
+
+      try{
+        if(isRegister){
+          await createUserWithEmailAndPassword(auth,email.value,password.value);
+        }else{
+          await signInWithEmailAndPassword(auth,email.value,password.value);
+        }
+      }catch(err){
+        errorEl.textContent = err.message.replace("Firebase: ","");
+      }
+    };
+
+    /* TOGGLE MODE */
+    toggleMode.onclick = ()=>{
+      isRegister = !isRegister;
+      title.textContent = isRegister ? "Create Account" : "Admin Login";
+      subtitle.textContent = isRegister ? "Register a new admin account" : "Sign in to manage Sunken Universe";
+      submitBtn.textContent = isRegister ? "Register" : "Login";
+      toggleMode.textContent = isRegister ? "Already have an account?" : "Create an account";
+    };
+
+    /* FORGOT PASSWORD */
+    forgotPassword.onclick = async ()=>{
+      errorEl.textContent = "";
+      successEl.textContent = "";
+
+      if(!email.value){
+        errorEl.textContent = "Enter your email first";
+        return;
+      }
+
+      try{
+        await sendPasswordResetEmail(auth,email.value);
+        successEl.textContent = "Password reset email sent";
+      }catch(err){
+        errorEl.textContent = err.message.replace("Firebase: ","");
+      }
+    };
+</script>
+
+</body>
+</html>

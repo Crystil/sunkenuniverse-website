@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sunken Universe | Lore</title>
+    <meta name="description" content="The lore and history of the Sunken Universe – a drowned world built for cinematic Minecraft storytelling." />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+          --bg:#05080f; --card:#0b1220; --accent:#4df2d6; --accent2:#5b8cff; --text:#e6ebf2; --muted:#9aa4b2;
+        }
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:Inter,sans-serif;background:radial-gradient(1200px 600px at 20% 10%,#0b1530,var(--bg));color:var(--text);line-height:1.6}
+        a{color:inherit;text-decoration:none}
+        header{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:20px 8%;background:rgba(5,8,15,.7);backdrop-filter:blur(12px);border-bottom:1px solid #121a2f}
+        .logo{font-weight:900;letter-spacing:1px}
+        nav a{margin-left:24px;color:var(--muted)}
+        nav a:hover{color:var(--accent)}
+        section{padding:100px 8%}
+        .hero{text-align:center;padding-top:120px}
+        .hero h1{font-size:clamp(2.4rem,5vw,3.6rem);font-weight:900;margin-bottom:16px}
+        .hero h1 span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .hero p{max-width:760px;margin:0 auto;color:var(--muted)}
+        .timeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:28px;margin-top:60px}
+        .event{background:linear-gradient(180deg,#0b1220,#05080f);border:1px solid #162040;border-radius:22px;padding:32px}
+        .event h3{margin-bottom:10px}
+        .event p{color:var(--muted);font-size:.95rem}
+        .mystery{background:var(--card);border:1px dashed #1b2440;border-radius:22px;padding:36px;text-align:center}
+        footer{padding:50px 8%;border-top:1px solid #121a2f;color:var(--muted);font-size:.85rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+        @media(max-width:900px){section{padding:80px 6%}header{padding:18px 6%}}
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo">Sunken Universe</div>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="#timeline">Timeline</a>
+        <a href="#mysteries">Mysteries</a>
+        <a href="https://discord.gg/s4WQk93RYp" target="_blank">Discord</a>
+    </nav>
+</header>
+
+<section class="hero">
+    <h1>The World <span>After the Flood</span></h1>
+    <p>
+        Long before the islands, before the ruins, before the endless sea — there was a world.
+        What remains now is fragmented history, half‑buried truth, and stories waiting to surface.
+    </p>
+</section>
+
+<section id="timeline">
+    <h2 class="section-title">Timeline</h2>
+    <p class="section-sub">What is known. What is believed. What is forbidden.</p>
+
+    <div class="timeline">
+        <div class="event">
+            <h3>Before the Flood</h3>
+            <p>Civilizations flourished across vast continents. Technology, magic, or power — something held the oceans at bay.</p>
+        </div>
+        <div class="event">
+            <h3>The Drowning</h3>
+            <p>The seas rose faster than anyone could react. Cities vanished. Nations collapsed. History was erased overnight.</p>
+        </div>
+        <div class="event">
+            <h3>The Shattered Age</h3>
+            <p>Survivors clung to mountaintops and artificial islands. Trade, piracy, and conflict defined the new world.</p>
+        </div>
+        <div class="event">
+            <h3>The Present</h3>
+            <p>Ruins resurface. Artifacts are recovered. The truth of the Flood may not be as natural as believed.</p>
+        </div>
+    </div>
+</section>
+
+<section id="mysteries">
+    <div class="mystery">
+        <h2>Unanswered Questions</h2>
+        <p>
+            What caused the oceans to rise? Who benefited? And why do some ruins appear untouched by time?
+            These mysteries are intentionally unresolved — to be discovered through play.
+        </p>
+    </div>
+</section>
+
+<footer>
+    <div>© 2026 Sunken Universe</div>
+    <div>Not affiliated with Mojang or Discord</div>
+</footer>
+</body>
+</html>

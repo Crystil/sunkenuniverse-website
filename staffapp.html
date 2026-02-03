@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Staff Application | Sunken Universe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#05080f;
+      --panel:#0b1220;
+      --accent:#4df2d6;
+      --text:#e6ebf2;
+      --muted:#9aa4b2;
+      --border:#162040;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;font-family:Inter,sans-serif;
+      background:radial-gradient(1200px 600px at 20% 10%,#0b1530,var(--bg));
+      color:var(--text);
+    }
+    main{max-width:700px;margin:60px auto;padding:0 24px}
+    .panel{
+      background:linear-gradient(180deg,#0b1220,#05080f);
+      border:1px solid var(--border);
+      border-radius:22px;
+      padding:32px;
+    }
+    h1{margin-bottom:6px}
+    .sub{color:var(--muted);margin-bottom:24px}
+    label{font-weight:600;font-size:.85rem}
+    input,select,textarea{
+      width:100%;padding:14px 16px;margin:6px 0 18px;
+      border-radius:14px;border:1px solid var(--border);
+      background:#05080f;color:var(--text)
+    }
+    select option{background:#05080f;color:var(--text)}
+    button{
+      width:100%;padding:14px;border-radius:14px;
+      border:none;font-weight:800;cursor:pointer;
+      background:linear-gradient(135deg,var(--accent),#5b8cff);
+      color:#041017;
+    }
+  </style>
+</head>
+
+<body>
+<main>
+  <div class="panel">
+    <h1>Staff Application</h1>
+    <p class="sub">Apply to help moderate and manage the server</p>
+
+    <label>Discord Name</label>
+    <input id="discordName" placeholder="username#0000" required>
+
+    <label>Age</label>
+    <input id="age" type="number" required>
+
+    <label>Region</label>
+    <select id="region" required>
+      <option value="">Select your region</option>
+      <option>North America</option>
+      <option>South America</option>
+      <option>Europe</option>
+      <option>United Kingdom</option>
+      <option>Asia</option>
+      <option>India</option>
+      <option>Middle East</option>
+      <option>Africa</option>
+      <option>Oceania</option>
+    </select>
+
+    <label>Staff Position</label>
+    <select id="position" required>
+      <option value="">Select position</option>
+      <option>Moderator</option>
+      <option>Support</option>
+      <option>Event Manager</option>
+      <option>Script Writer</option>
+    </select>
+
+    <label>Why should we pick you?</label>
+    <textarea id="reason"></textarea>
+
+    <button id="submit">Submit Application</button>
+  </div>
+</main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+  import { getFirestore, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+  const app = initializeApp({
+    apiKey:"AIzaSyBDUKl5Pn4_in6kvgvuLKP5S6Pm2fDDKz8",
+    authDomain:"sunkensmp.firebaseapp.com",
+    projectId:"sunkensmp"
+  });
+  const db = getFirestore(app);
+
+  document.getElementById("submit").onclick = async ()=>{
+    await addDoc(collection(db,"applications","staff","submissions"),{
+      discordName:discordName.value,
+      age:age.value,
+      region:region.value,
+      position:position.value,
+      reason:reason.value,
+      role:"Staff",
+      status:"pending",
+      createdAt:serverTimestamp()
+    });
+    alert("Application submitted!");
+  };
+</script>
+</body>
+</html>
