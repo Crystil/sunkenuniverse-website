@@ -12,36 +12,73 @@
           --bg:#05080f;
           --panel:#0b1220;
           --accent:#4df2d6;
+          --accent2:#5b8cff;
           --text:#e6ebf2;
           --muted:#9aa4b2;
           --border:#162040;
         }
         *{box-sizing:border-box}
         body{
-          margin:0;font-family:Inter,sans-serif;
+          margin:0;
+          font-family:Inter,sans-serif;
           background:radial-gradient(1200px 600px at 20% 10%,#0b1530,var(--bg));
           color:var(--text);
         }
-        main{max-width:700px;margin:60px auto;padding:0 24px}
+        main{
+          max-width:720px;
+          margin:60px auto;
+          padding:0 24px;
+        }
         .panel{
           background:linear-gradient(180deg,#0b1220,#05080f);
           border:1px solid var(--border);
           border-radius:22px;
-          padding:32px;
+          padding:34px;
         }
         h1{margin-bottom:6px}
-        .sub{color:var(--muted);margin-bottom:24px}
-        label{font-weight:600;font-size:.85rem}
-        input,select,textarea{
-          width:100%;padding:14px 16px;margin:6px 0 18px;
-          border-radius:14px;border:1px solid var(--border);
-          background:#05080f;color:var(--text)
+        .sub{color:var(--muted);margin-bottom:26px}
+
+        label{
+          font-weight:600;
+          font-size:.85rem;
         }
-        select option{background:#05080f;color:var(--text)}
+
+        input, select, textarea{
+          width:100%;
+          padding:14px 16px;
+          margin:6px 0 18px;
+          border-radius:14px;
+          border:1px solid var(--border);
+          background:#05080f;
+          color:var(--text);
+        }
+        select option{
+          background:#05080f;
+          color:var(--text);
+        }
+
+        .radio-group{
+          display:flex;
+          gap:24px;
+          margin:10px 0 22px;
+        }
+        .radio-group label{
+          font-weight:600;
+          cursor:pointer;
+        }
+        .radio-group input{
+          accent-color:var(--accent);
+          margin-right:6px;
+        }
+
         button{
-          width:100%;padding:14px;border-radius:14px;
-          border:none;font-weight:800;cursor:pointer;
-          background:linear-gradient(135deg,var(--accent),#5b8cff);
+          width:100%;
+          padding:15px;
+          border-radius:14px;
+          border:none;
+          font-weight:900;
+          cursor:pointer;
+          background:linear-gradient(135deg,var(--accent),var(--accent2));
           color:#041017;
         }
     </style>
@@ -74,26 +111,25 @@
         </select>
 
         <label>Actor Role</label>
-        <select id="actorRole" required>
+        <select id="actorType" required>
             <option value="">Select role</option>
-            <option>Main Character (YouTuber)</option>
+            <option>Main Character</option>
             <option>Side Character</option>
-            <option>Background / Extra</option>
         </select>
+
+        <label>Do you have a working microphone?</label>
+        <div class="radio-group">
+            <label><input type="radio" name="mic" value="Yes" required> Yes</label>
+            <label><input type="radio" name="mic" value="No"> No</label>
+        </div>
 
         <label>Availability</label>
-        <input id="availability" placeholder="e.g. 4–5 days a week">
+        <textarea id="availability" placeholder="How often can you record?"></textarea>
 
-        <label>Do you have a good microphone?</label>
-        <select id="mic">
-            <option>Yes</option>
-            <option>No</option>
-        </select>
+        <label>Previous Experience (optional)</label>
+        <textarea id="experience" placeholder="Acting, YouTube, SMPs, etc."></textarea>
 
-        <label>Anything else we should know?</label>
-        <textarea id="extra"></textarea>
-
-        <button id="submit">Submit Application</button>
+        <button id="submitBtn">Submit Application</button>
     </div>
 </main>
 
@@ -101,27 +137,34 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
     import { getFirestore, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
-    const app = initializeApp({
-      apiKey:"AIzaSyBDUKl5Pn4_in6kvgvuLKP5S6Pm2fDDKz8",
-      authDomain:"sunkensmp.firebaseapp.com",
-      projectId:"sunkensmp"
-    });
+    const firebaseConfig = {
+      apiKey: "AIzaSyBDUKl5Pn4_in6kvgvuLKP5S6Pm2fDDKz8",
+      authDomain: "sunkensmp.firebaseapp.com",
+      projectId: "sunkensmp"
+    };
+
+    const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    document.getElementById("submit").onclick = async ()=>{
+    document.getElementById("submitBtn").onclick = async () => {
+      const mic = document.querySelector('input[name="mic"]:checked')?.value;
+
+      if(!mic) return alert("Please select whether you have a microphone.");
+
       await addDoc(collection(db,"applications","actors","submissions"),{
-        discordName:discordName.value,
-        age:age.value,
-        region:region.value,
-        actorRole:actorRole.value,
-        availability:availability.value,
-        mic:mic.value,
-        extra:extra.value,
-        role:"Actor",
-        status:"pending",
-        createdAt:serverTimestamp()
+        discordName: discordName.value,
+        age: age.value,
+        region: region.value,
+        actorType: actorType.value,
+        mic: mic,
+        availability: availability.value,
+        experience: experience.value,
+        role: "Actor",
+        status: "pending",
+        createdAt: serverTimestamp()
       });
-      alert("Application submitted!");
+
+      alert("Application submitted successfully!");
     };
 </script>
 </body>
