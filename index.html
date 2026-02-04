@@ -47,6 +47,7 @@
           text-decoration:none;
           margin-left:20px;
           font-size:.9rem;
+          font-weight:600;
         }
         nav a:hover{color:var(--green)}
 
@@ -119,6 +120,43 @@
           color:var(--muted);
           margin-bottom:50px;
         }
+
+        /* CAST */
+        .cast-grid{
+          display:flex;
+          justify-content:center;
+          align-items:flex-end;
+          gap:40px;
+          flex-wrap:wrap;
+        }
+        .cast-card{
+          background:var(--panel);
+          border:1px solid rgba(43,255,214,.3);
+          border-radius:18px;
+          padding:24px;
+          text-align:center;
+          width:220px;
+        }
+        .cast-card img{
+          width:120px;
+          image-rendering:pixelated;
+          margin-bottom:14px;
+        }
+        .cast-card h3{
+          margin:0;
+          color:var(--green);
+        }
+        .cast-card p{
+          margin-top:6px;
+          color:var(--muted);
+          font-size:.9rem;
+        }
+        .cast-main{
+          transform:scale(1.15);
+          box-shadow:0 0 40px rgba(43,255,214,.25);
+        }
+
+        /* GRID */
         .grid{
           display:grid;
           grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
@@ -132,22 +170,6 @@
         }
         .card h3{margin-top:0;color:var(--green)}
         .card p{color:var(--muted);line-height:1.6}
-
-        /* CAST PLACEHOLDER (REPLACED CLEANLY) */
-        .cast-placeholder{
-          text-align:center;
-          padding:60px 20px;
-          border:1px dashed rgba(43,255,214,.35);
-          border-radius:18px;
-          background:rgba(10,20,32,.6);
-        }
-        .cast-placeholder h3{
-          color:var(--green);
-          margin-bottom:10px;
-        }
-        .cast-placeholder p{
-          color:var(--muted);
-        }
 
         /* FOOTER */
         footer{
@@ -169,6 +191,7 @@
             <a href="actorapp.html">Actors</a>
             <a href="builderapp.html">Builders</a>
             <a href="staffapp.html">Staff</a>
+            <a href="#" id="adminBtn">Admin / Login</a>
             <a href="https://discord.gg/s4WQk93RYp" target="_blank">Discord</a>
         </div>
     </div>
@@ -195,21 +218,34 @@
 
 <section>
     <h2 class="section-title">Main Cast</h2>
-    <p class="section-sub">The Sunken Universe cast will be revealed soon.</p>
+    <p class="section-sub">Meet the core characters of the Sunken Universe.</p>
 
-    <!-- PLACEHOLDER SKINS REMOVED – CLEAN HOLDING BLOCK -->
-    <div class="cast-placeholder">
-        <h3>Cast Reveal Coming Soon</h3>
-        <p>
-            Roles are currently being selected.
-            Once finalized, the main cast will appear here.
-        </p>
+    <div class="cast-grid">
+        <!-- LEFT -->
+        <div class="cast-card">
+            <img src="assets/skin2.png" alt="Cast Member">
+            <h3>fray_y</h3>
+            <p>Protagonist</p>
+        </div>
+
+        <!-- CENTER (MAIN) -->
+        <div class="cast-card cast-main">
+            <img src="assets/skin1.png" alt="Main Cast">
+            <h3>SunkenTrack</h3>
+            <p>Protagonist</p>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="cast-card">
+            <img src="assets/skin3.png" alt="Cast Member">
+            <h3>Dravaba</h3>
+            <p>Protagonist</p>
+        </div>
     </div>
 </section>
 
 <section>
     <h2 class="section-title">What Makes This Different</h2>
-
 
     <div class="grid">
         <div class="card">
@@ -230,6 +266,23 @@
 <footer>
     © Sunken Universe SMP — All Rights Reserved
 </footer>
+
+<script type="module">
+    import { auth } from "./firebase.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    const adminBtn = document.getElementById("adminBtn");
+    let currentUser = null;
+
+    onAuthStateChanged(auth, user => currentUser = user);
+
+    adminBtn.addEventListener("click", e => {
+      e.preventDefault();
+      window.location.href = currentUser
+        ? "admindashboard.html"
+        : "loginregister.html";
+    });
+</script>
 
 </body>
 </html>
