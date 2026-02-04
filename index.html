@@ -5,19 +5,27 @@
     <title>Sunken Universe SMP</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
     <style>
         :root{
-          --panel:rgba(10,20,32,.9);
+          --panel:rgba(10,20,32,.88);
           --blue:#2bb0ff;
           --green:#2bffd6;
           --text:#e6f1ff;
           --muted:#9bb3c7;
         }
         *{box-sizing:border-box;font-family:Inter,system-ui,sans-serif}
+
         body{
           margin:0;
-          background:radial-gradient(circle at top,#0b243a,#02040a);
           color:var(--text);
+          min-height:100vh;
+
+          /* BACKGROUND IMAGE */
+          background:
+            linear-gradient(rgba(2,4,10,.85), rgba(2,4,10,.95)),
+            url("assets/menu.png") center/cover no-repeat fixed;
         }
 
         /* NAVBAR */
@@ -42,18 +50,17 @@
           letter-spacing:.5px;
           color:var(--green);
         }
-        nav a{
+        .nav-links a{
           color:var(--text);
           text-decoration:none;
           margin-left:20px;
           font-size:.9rem;
-          font-weight:600;
         }
-        nav a:hover{color:var(--green)}
+        .nav-links a:hover{color:var(--green)}
 
         /* HERO */
         header{
-          padding:100px 20px 80px;
+          padding:110px 20px 90px;
           display:flex;
           justify-content:center;
         }
@@ -64,7 +71,9 @@
           padding:60px;
           text-align:center;
           border:1px solid rgba(43,255,214,.35);
-          box-shadow:0 0 40px rgba(43,255,214,.15),0 60px 160px rgba(0,0,0,.9);
+          box-shadow:
+            0 0 40px rgba(43,255,214,.15),
+            0 60px 160px rgba(0,0,0,.9);
           backdrop-filter:blur(18px);
         }
         .hero h1{
@@ -108,7 +117,7 @@
         section{
           max-width:1100px;
           margin:0 auto;
-          padding:80px 20px;
+          padding:90px 20px;
         }
         .section-title{
           font-size:2rem;
@@ -123,40 +132,32 @@
 
         /* CAST */
         .cast-grid{
-          display:flex;
-          justify-content:center;
-          align-items:flex-end;
+          display:grid;
+          grid-template-columns:repeat(3,1fr);
           gap:40px;
-          flex-wrap:wrap;
+          align-items:end;
         }
-        .cast-card{
-          background:var(--panel);
-          border:1px solid rgba(43,255,214,.3);
-          border-radius:18px;
-          padding:24px;
+        .cast{
           text-align:center;
-          width:220px;
         }
-        .cast-card img{
-          width:120px;
-          image-rendering:pixelated;
-          margin-bottom:14px;
+        .cast img{
+          width:100%;
+          max-width:220px;
+          border-radius:18px;
+          border:1px solid rgba(43,255,214,.35);
+          box-shadow:0 0 30px rgba(43,255,214,.15);
         }
-        .cast-card h3{
-          margin:0;
+        .cast.main img{max-width:260px}
+        .cast h3{
+          margin:14px 0 4px;
           color:var(--green);
         }
-        .cast-card p{
-          margin-top:6px;
+        .cast p{
           color:var(--muted);
           font-size:.9rem;
         }
-        .cast-main{
-          transform:scale(1.15);
-          box-shadow:0 0 40px rgba(43,255,214,.25);
-        }
 
-        /* GRID */
+        /* INFO GRID */
         .grid{
           display:grid;
           grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
@@ -186,12 +187,12 @@
 <nav>
     <div class="nav-inner">
         <div class="logo">Sunken Universe</div>
-        <div>
+        <div class="nav-links">
             <a href="index.html">Home</a>
             <a href="actorapp.html">Actors</a>
             <a href="builderapp.html">Builders</a>
             <a href="staffapp.html">Staff</a>
-            <a href="#" id="adminBtn">Admin / Login</a>
+            <a href="loginregister.html">Admin</a>
             <a href="https://discord.gg/s4WQk93RYp" target="_blank">Discord</a>
         </div>
     </div>
@@ -205,7 +206,7 @@
             lore-driven arcs, and unforgettable moments.
             <br><br>
             An ancient ocean covers most of the world.
-            Scattered islands hide secrets, ruins, and stories beneath the waves.
+            Scattered islands hide secrets beneath the waves.
         </p>
 
         <div class="buttons">
@@ -218,47 +219,43 @@
 
 <section>
     <h2 class="section-title">Main Cast</h2>
-    <p class="section-sub">Meet the core characters of the Sunken Universe.</p>
+    <p class="section-sub">Meet the core cast of Sunken Universe</p>
 
     <div class="cast-grid">
-        <!-- LEFT -->
-        <div class="cast-card">
-            <img src="assets/skin2.png" alt="Cast Member">
-            <h3>fray_y</h3>
-            <p>Protagonist</p>
+        <div class="cast">
+            <img src="assets/skin2.png" alt="Cast Left">
+            <h3>Cast Member</h3>
+            <p>Supporting Role</p>
         </div>
 
-        <!-- CENTER (MAIN) -->
-        <div class="cast-card cast-main">
+        <div class="cast main">
             <img src="assets/skin1.png" alt="Main Cast">
-            <h3>SunkTrack</h3>
-            <p>Protagonist</p>
+            <h3>Main Character</h3>
+            <p>Lead Role</p>
         </div>
 
-        <!-- RIGHT -->
-        <div class="cast-card">
-            <img src="assets/skin3.png" alt="Cast Member">
-            <h3>Dravaba</h3>
-            <p>Protagonist</p>
+        <div class="cast">
+            <img src="assets/skin3.png" alt="Cast Right">
+            <h3>Cast Member</h3>
+            <p>Supporting Role</p>
         </div>
     </div>
 </section>
 
 <section>
     <h2 class="section-title">What Makes This Different</h2>
-
     <div class="grid">
         <div class="card">
             <h3>🎬 Scripted Content</h3>
-            <p>Every arc is designed for cinematic storytelling and content creation.</p>
+            <p>Every arc is planned for cinematic storytelling.</p>
         </div>
         <div class="card">
             <h3>🌊 Deep Lore</h3>
-            <p>An ocean-covered world filled with ancient ruins and hidden history.</p>
+            <p>An ocean-covered world filled with ancient secrets.</p>
         </div>
         <div class="card">
-            <h3>🎭 Cast-Focused</h3>
-            <p>Actors, builders, and writers working together as one production.</p>
+            <h3>🎭 Cast Driven</h3>
+            <p>Actors, builders, and writers working as one team.</p>
         </div>
     </div>
 </section>
@@ -266,23 +263,6 @@
 <footer>
     © Sunken Universe SMP — All Rights Reserved
 </footer>
-
-<script type="module">
-    import { auth } from "./firebase.js";
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-    const adminBtn = document.getElementById("adminBtn");
-    let currentUser = null;
-
-    onAuthStateChanged(auth, user => currentUser = user);
-
-    adminBtn.addEventListener("click", e => {
-      e.preventDefault();
-      window.location.href = currentUser
-        ? "admindashboard.html"
-        : "loginregister.html";
-    });
-</script>
 
 </body>
 </html>
